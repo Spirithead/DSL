@@ -1,0 +1,5 @@
+lang->expr+
+expr->VAR ASSIGN_OP expr_value+
+expr_value->(bc_expr_value|value) (OP (value|expr_value|bc_expr_value))+
+bc_expr_value->L_BC expr_value R_BC
+value->VAR|DIGIT
