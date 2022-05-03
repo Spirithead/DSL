@@ -21,8 +21,6 @@ public class Main {
 
         //System.out.println(tokens);
         Parser parser = new Parser(tokens);
-        if(parser.lang()){
-            System.out.println(" ,\n=3");
-        }
+        parser.lang();
     }
 }

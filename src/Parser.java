@@ -7,7 +7,6 @@ import java.util.NoSuchElementException;
 public class Parser {
     private Token currToken;
     private final ListIterator<Token> iterator;
-    boolean hitLast = false;
 
     public Parser(List<Token> tokens) {
         iterator = tokens.listIterator();
@@ -25,7 +24,6 @@ public class Parser {
         try {
             nextToken();
         } catch (NoSuchElementException e) {
-            hitLast = true;
             return false;
         }
 
@@ -45,7 +43,7 @@ public class Parser {
         }
     }
 
-    public boolean checkBcExprValue() {
+    private boolean checkBcExprValue() {
         if (checkTerminal("LBR")) {
             if (checkExprValue()) {
                 if (checkTerminal("RBR")) {
@@ -56,7 +54,7 @@ public class Parser {
         return false;
     }
 
-    public boolean checkAddValue(){
+    private boolean checkAddValue(){
         int count = 0;
         while (true) {
             if (checkTerminal("OP")) {
@@ -74,7 +72,7 @@ public class Parser {
         return false;
     }
 
-    public boolean checkExprValue() {
+    private boolean checkExprValue() {
         if(checkBcExprValue() && checkAddValue()){
             return true;
         } else if(checkValue()){
@@ -84,7 +82,7 @@ public class Parser {
         return false;
     }
 
-    public boolean checkBody() {
+    private boolean checkBody() {
         if (checkTerminal("LBC")) {
             int count = 0;
             while (true) {
@@ -115,7 +113,7 @@ public class Parser {
         return false;
     }
 
-    public boolean checkAssignExpr() {
+    private boolean checkAssignExpr() {
         if (checkTerminal("VAR")) {
             if (checkTerminal("ASSIGN_OP")) {
                 if (checkExprValue()) {
@@ -126,7 +124,7 @@ public class Parser {
         return false;
     }
 
-    public boolean checkWhileExpr() {
+    private boolean checkWhileExpr() {
         if(checkTerminal("WHILE")){
             if(checkTerminal("LBR")){
                 if(checkCompExpr()){
@@ -141,7 +139,7 @@ public class Parser {
         return false;
     }
 
-    public boolean checkForExpr() {
+    private boolean checkForExpr() {
         if (checkTerminal("FOR")){
             if(checkTerminal("LBR")){
                 if(checkAssignExpr()){
@@ -166,15 +164,15 @@ public class Parser {
         }
     }
 
-    public boolean lang() {
+    public void lang() {
         while (iterator.hasNext()) {
             try {
                 checkExpr();
             } catch (SyntaxException e) {
                 System.out.println(e.getMessage());
-                return false;
+                return;
             }
         }
-        return true;
+        System.out.println(" ,\n=3");
     }
 }
