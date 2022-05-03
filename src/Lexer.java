@@ -1,73 +1,82 @@
 package src;
 
-import java.util.*;
-import java.util.regex.*;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Lexer {
 
-    private static Map<String, Pattern> lexems = new HashMap<>();
+    private static final List<Lexem> lexems = new ArrayList<>();
 
     static {
-        lexems.put("VAR", Pattern.compile("^[a-z][a-z0-9]*$"));
-        lexems.put("DIGIT", Pattern.compile("^0|([1-9][0-9]*)$"));
-        lexems.put("ASSIGN_OP", Pattern.compile("^=$"));
-        lexems.put("OP",Pattern.compile("^\\*|\\+|-|/$"));
-        lexems.put("LBR", Pattern.compile("^\\($"));
-        lexems.put("RBR", Pattern.compile("^\\)$"));
+        lexems.add(new Lexem("WHILE", Pattern.compile("^while$")));
+        lexems.add(new Lexem("FOR", Pattern.compile("^for$")));
+        lexems.add(new Lexem("VAR", Pattern.compile("^[a-z][a-z0-9]*$")));
+        lexems.add(new Lexem("DIGIT", Pattern.compile("^0|([1-9][0-9]*)$")));
+        lexems.add(new Lexem("COMP_OP", Pattern.compile("^>|<|>=|<=|==$")));
+        lexems.add(new Lexem("ASSIGN_OP", Pattern.compile("^=$")));
+        lexems.add(new Lexem("OP", Pattern.compile("^\\*|\\+|-|/$")));
+        lexems.add(new Lexem("LBR", Pattern.compile("^\\($")));
+        lexems.add(new Lexem("RBR", Pattern.compile("^\\)$")));
+        lexems.add(new Lexem("LBC", Pattern.compile("^\\{$")));
+        lexems.add(new Lexem("RBC", Pattern.compile("^}$")));
     }
 
-    public static void main(String[] args) {
-        char[] in = "size=(a-10)+125".toCharArray();
-        boolean matched = false;
-        String value="";
+    public List<Token> readTokens(String in) {
         List<Token> tokens = new LinkedList<>();
+        char[] inChar = in.toCharArray();
+        boolean matched = false;
+        String value = "";
         int firstSym = 0;
-        int j=0;
+        int character = 1;
+        int line = 1;
+        int j = 0;
+        int delay = 5;
 
-        for(int i=1;i <= in.length;i++){
-            char[] buffer = new char[i-firstSym];
-            System.arraycopy(in,firstSym,buffer,0,i-firstSym);
+        for (int i = 1; i <= inChar.length; i++) {
+            char[] buffer = new char[i - firstSym];
+            System.arraycopy(inChar, firstSym, buffer, 0, i - firstSym);
+            //TODO добавить StringBuilder
+            //TODO разобраться с позициями
             String currString = String.valueOf(buffer);
-            Matcher m = lexems.get(lexems.keySet().toArray()[j].toString()).matcher(currString);
-            if(m.matches()){
-                matched=true;
-                value=currString;
-                if(i==in.length) tokens.add(new Token(lexems.keySet().toArray()[j].toString(),value));
+            if (currString.equals(" ") || currString.equals("\n") || currString.equals("\t")) {
+                firstSym++;
+                if (currString.equals(" ")) {
+                    character++;
+                } else if (currString.equals("\n")) {
+                    character = 1;
+                    line++;
+                } else {
+                    character += 4;
+                }
+                continue;
             }
-            else if(matched){
-                tokens.add(new Token(lexems.keySet().toArray()[j].toString(),value));
-                matched=false;
-                firstSym = i-1;
+
+            Matcher m = lexems.get(j).getPattern().matcher(currString);
+            if (m.matches()) {
+                matched = true;
+                value = currString;
+                if (i == inChar.length) {
+                    tokens.add(new Token(lexems.get(j).getName(), value, character, line));
+                }
+            } else if (matched) {
+                tokens.add(new Token(lexems.get(j).getName(), value, character, line));
+                matched = false;
+                firstSym = i - 1;
+                character = i - 1;
                 i--;
-                j=0;
-            }
-            else {
+                j = 0;
+            } else if (i - firstSym <= delay && i < inChar.length) {
+                continue;
+            } else {
                 j++;
-                i--;
+                i = firstSym;
             }
         }
-
-        for (Token token: tokens) {
-            System.out.println(token);
-        }
-
+        return tokens;
     }
 }
 
-class Token {
 
-    private String type;
-    private String value;
-
-    public Token(String type, String value){
-        this.type = type;
-        this.value = value;
-    }
-
-
-    @Override
-    public String toString(){
-        return "TOKEN[type=\"" + this.type + "\", value=\"" + this.value + "\"]";
-    }
-
-}

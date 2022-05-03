@@ -1,0 +1,9 @@
+while (a<b) {
+    a=a+10
+}
+
+abc = 228+1337
+
+for (i=0 i<abc i=i+1) {
+    b = b-42
+}

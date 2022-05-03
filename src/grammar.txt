@@ -1,5 +1,11 @@
-lang->expr+
-expr->VAR ASSIGN_OP expr_value+
-expr_value->(bc_expr_value|value) (OP (value|expr_value|bc_expr_value))+
-bc_expr_value->L_BC expr_value R_BC
-value->VAR|DIGIT
+lang -> expr+
+expr -> assign_expr | while_expr | for_expr
+assign_expr -> VAR ASSIGN_OP expr_value
+for_expr -> FOR LBR assign_expr comp_expr assign_expr RBR body
+while_expr -> WHILE LBR comp_expr RBR body
+body -> LBC expr+ RBC
+comp_expr -> value COMP_OP value
+expr_value -> ((bc_expr_value|value) add_value) | value
+add_value -> (OP (value|bc_expr_value|expr_value))+
+bc_expr_value -> LBR expr_value RBR
+value -> VAR|DIGIT
