@@ -1,15 +1,15 @@
 package src;
 
-import java.util.List;
-import java.util.ListIterator;
-import java.util.NoSuchElementException;
+import java.util.*;
 
 public class Parser {
     private Token currToken;
-    private final ListIterator<Token> iterator;
+    private ListIterator<Token> iterator;
+    private List<Token> tokens;
 
     public Parser(List<Token> tokens) {
         iterator = tokens.listIterator();
+        this.tokens = tokens;
     }
 
     private void nextToken() {
@@ -54,7 +54,7 @@ public class Parser {
         return false;
     }
 
-    private boolean checkAddValue(){
+    private boolean checkAddValue() {
         int count = 0;
         while (true) {
             if (checkTerminal("OP")) {
@@ -73,9 +73,9 @@ public class Parser {
     }
 
     private boolean checkExprValue() {
-        if(checkBcExprValue() && checkAddValue()){
+        if (checkBcExprValue() && checkAddValue()) {
             return true;
-        } else if(checkValue()){
+        } else if (checkValue()) {
             checkAddValue();
             return true;
         }
@@ -93,7 +93,7 @@ public class Parser {
                     break;
                 }
             }
-            if(checkTerminal("RBC")){
+            if (checkTerminal("RBC")) {
                 if (count > 0) {
                     return true;
                 }
@@ -125,11 +125,11 @@ public class Parser {
     }
 
     private boolean checkWhileExpr() {
-        if(checkTerminal("WHILE")){
-            if(checkTerminal("LBR")){
-                if(checkCompExpr()){
-                    if(checkTerminal("RBR")){
-                        if(checkBody()){
+        if (checkTerminal("WHILE")) {
+            if (checkTerminal("LBR")) {
+                if (checkCompExpr()) {
+                    if (checkTerminal("RBR")) {
+                        if (checkBody()) {
                             return true;
                         }
                     }
@@ -140,13 +140,13 @@ public class Parser {
     }
 
     private boolean checkForExpr() {
-        if (checkTerminal("FOR")){
-            if(checkTerminal("LBR")){
-                if(checkAssignExpr()){
-                    if(checkCompExpr()){
-                        if(checkAssignExpr()){
-                            if(checkTerminal("RBR")){
-                                if(checkBody()){
+        if (checkTerminal("FOR")) {
+            if (checkTerminal("LBR")) {
+                if (checkAssignExpr()) {
+                    if (checkCompExpr()) {
+                        if (checkAssignExpr()) {
+                            if (checkTerminal("RBR")) {
+                                if (checkBody()) {
                                     return true;
                                 }
                             }
@@ -175,4 +175,18 @@ public class Parser {
         }
         System.out.println(" ,\n=3");
     }
+
+    /*public List<Token> polish() {
+        List<Token> out = new ArrayList<>();
+        iterator = tokens.listIterator();
+        while (iterator.hasNext()){
+            Token currToken = iterator.next();
+            if(Objects.equals(currToken.getType(), "DIGIT")
+                    ||Objects.equals(currToken.getType(), "VAR")){
+                out.add(currToken);
+            }
+
+        }
+        return out;
+    }*/
 }
