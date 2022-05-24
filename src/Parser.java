@@ -160,7 +160,7 @@ public class Parser {
 
     private void checkExpr() throws SyntaxException {
         if (!(checkAssignExpr() || checkWhileExpr() || checkForExpr())) {
-            throw new SyntaxException(currToken.getLine() + ":" + currToken.getCharacter());
+            throw new SyntaxException();
         }
     }
 
@@ -170,23 +170,51 @@ public class Parser {
                 checkExpr();
             } catch (SyntaxException e) {
                 System.out.println(e.getMessage());
-                return;
+                System.exit(1);
             }
         }
         System.out.println(" ,\n=3");
     }
 
-    /*public List<Token> polish() {
-        List<Token> out = new ArrayList<>();
-        iterator = tokens.listIterator();
-        while (iterator.hasNext()){
-            Token currToken = iterator.next();
-            if(Objects.equals(currToken.getType(), "DIGIT")
-                    ||Objects.equals(currToken.getType(), "VAR")){
-                out.add(currToken);
-            }
+    private int priority(Token token) {
+        return switch (token.getValue()) {
+            case "*", "/" -> 3;
+            case "+", "-" -> 2;
+            case "=", ">", "<", ">=", "<=", "==" -> 1;
+            default -> 0;
+        };
+    }
 
+    public ArrayDeque<Token> polish() {
+        ArrayDeque<Token> out = new ArrayDeque<>();
+        ArrayDeque<Token> ops = new ArrayDeque<>();
+        iterator = tokens.listIterator();
+        while (iterator.hasNext()) {
+            Token currToken = iterator.next();
+            if(currToken.getType().equals("DEL")){
+                while (!ops.isEmpty() && !ops.peek().getType().equals("LBR")) {
+                    out.push(ops.pop());
+                }
+            }
+            switch (currToken.getType()) {
+                case "DIGIT", "VAR", "WHILE", "FOR", "LBC", "RBC" -> out.push(currToken);
+                case "LBR" -> ops.push(currToken);
+                case "RBR" -> {
+                    while (!ops.peek().getType().equals("LBR")) {
+                        out.push(ops.pop());
+                    }
+                    ops.pop();
+                }
+                case "OP", "ASSIGN_OP", "COMP_OP" -> {
+                    while (!ops.isEmpty() && (priority(currToken) <= priority(ops.peek()))) {
+                        out.push(ops.pop());
+                    }
+                    ops.push(currToken);
+                }
+
+            }
         }
+
         return out;
-    }*/
+    }
 }

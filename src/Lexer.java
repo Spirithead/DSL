@@ -11,6 +11,7 @@ public class Lexer {
     private static final List<Lexem> lexems = new ArrayList<>();
 
     static {
+        lexems.add(new Lexem("DEL", Pattern.compile("^;$")));
         lexems.add(new Lexem("WHILE", Pattern.compile("^while$")));
         lexems.add(new Lexem("FOR", Pattern.compile("^for$")));
         lexems.add(new Lexem("VAR", Pattern.compile("^[a-z][a-z0-9]*$")));
@@ -38,16 +39,12 @@ public class Lexer {
         for (int i = 1; i <= inChar.length; i++) {
             char[] buffer = new char[i - firstSym];
             System.arraycopy(inChar, firstSym, buffer, 0, i - firstSym);
-            //TODO добавить StringBuilder
             //TODO разобраться с позициями
             String currString = String.valueOf(buffer);
-            if (currString.equals(" ") || currString.equals("\n") || currString.equals("\t")) {
+            if (currString.equals(" ") || currString.equals("\t")) {
                 firstSym++;
                 if (currString.equals(" ")) {
                     character++;
-                } else if (currString.equals("\n")) {
-                    character = 1;
-                    line++;
                 } else {
                     character += 4;
                 }
@@ -59,10 +56,10 @@ public class Lexer {
                 matched = true;
                 value = currString;
                 if (i == inChar.length) {
-                    tokens.add(new Token(lexems.get(j).getName(), value, character, line));
+                    tokens.add(new Token(lexems.get(j).getName(), value));
                 }
             } else if (matched) {
-                tokens.add(new Token(lexems.get(j).getName(), value, character, line));
+                tokens.add(new Token(lexems.get(j).getName(), value));
                 matched = false;
                 firstSym = i - 1;
                 character = i - 1;

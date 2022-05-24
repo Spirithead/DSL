@@ -3,15 +3,16 @@ package src;
 public class Token {
 
     private final String type;
-    private final String value;
-    private final int character;
-    private final int line;
+    private String value;
+    private int intValue;
 
-    public Token(String type, String value, int position, int line) {
+    public Token(String type, String value) {
         this.type = type;
         this.value = value;
-        this.character = position;
-        this.line = line;
+    }
+    public Token(String type, int value) {
+        this.type = type;
+        this.intValue = value;
     }
 
     public String getType() {
@@ -22,17 +23,16 @@ public class Token {
         return value;
     }
 
-    public int getCharacter() {
-        return character;
-    }
-
-    public int getLine() {
-        return line;
-    }
-
     @Override
     public String toString() {
-        return "TOKEN[type=\"" + this.type + "\", value=\"" + this.value + "\", line=\""
-                + this.line + "\", character=\"" + this.character + "\"]";
+        return "TOKEN[type=\"" + this.type + "\", value=\"" + this.value + "\"]";
+    }
+
+    public int getIntValue() {
+        return intValue;
+    }
+
+    public void setIntValue(int intValue) {
+        this.intValue = intValue;
     }
 }

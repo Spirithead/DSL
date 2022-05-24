@@ -3,6 +3,7 @@ package src;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayDeque;
 import java.util.List;
 
 public class Main {
@@ -15,12 +16,16 @@ public class Main {
             in.append(line);
         }
         br.close();
-
         Lexer lexer = new Lexer();
         List<Token> tokens = lexer.readTokens(in.toString());
 
         //System.out.println(tokens);
         Parser parser = new Parser(tokens);
-        parser.lang();
+        //parser.lang();
+        ArrayDeque<Token> polish = parser.polish();
+        //System.out.println(polish);
+        StackMachine stackMachine = new StackMachine(polish);
+        stackMachine.execute();
+        System.out.println(stackMachine.getVars());
     }
 }
