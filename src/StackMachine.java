@@ -24,6 +24,7 @@ public class StackMachine {
                     varAssign(varName, value);
                 }
                 case "WHILE" -> {
+                    int skip =1;
                     temp.removeLast();
                     ArrayDeque<Token> condition = new ArrayDeque<>();
                     while (!temp.getLast().getType().equals("LBC")) {
@@ -31,9 +32,18 @@ public class StackMachine {
                     }
                     temp.removeLast();
                     ArrayDeque<Token> win = new ArrayDeque<>();
-                    while (!temp.getLast().getType().equals("RBC")) {
-                        win.push(temp.removeLast());
+                    do{
+                        if(temp.getLast().getType().equals("LBC")){
+                            skip++;
+                        }
+                        if(temp.getLast().getType().equals("RBC")){
+                            skip--;
+                        }
+                        if(skip!=0) {
+                            win.push(temp.removeLast());
+                        }
                     }
+                    while (!temp.getLast().getType().equals("RBC") || skip != 0);
                     temp.removeLast();
                     StackMachine whileMachine = new StackMachine(win);
                     while (checkCondition(condition)) {
@@ -41,6 +51,7 @@ public class StackMachine {
                     }
                 }
                 case "FOR" -> {
+                    int skip = 1;
                     temp.removeLast();
                     ArrayDeque<Token> condition = new ArrayDeque<>();
                     while (!temp.getLast().getType().equals("COMP_OP")) {
@@ -53,9 +64,18 @@ public class StackMachine {
                     }
                     temp.removeLast();
                     ArrayDeque<Token> fin = new ArrayDeque<>();
-                    while (!temp.getLast().getType().equals("RBC")) {
-                        fin.push(temp.removeLast());
+                    do{
+                        if(temp.getLast().getType().equals("LBC")){
+                            skip++;
+                        }
+                        if(temp.getLast().getType().equals("RBC")){
+                            skip--;
+                        }
+                        if(skip!=0) {
+                            fin.push(temp.removeLast());
+                        }
                     }
+                    while (!temp.getLast().getType().equals("RBC") || skip != 0);
                     temp.removeLast();
                     StackMachine forMachine = new StackMachine(fin);
                     StackMachine stepMachine = new StackMachine(step);
