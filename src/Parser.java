@@ -36,19 +36,13 @@ public class Parser {
     }
 
     private boolean checkValue() {
-        if (!checkTerminal("VAR") && !checkTerminal("DIGIT")) {
-            return false;
-        } else {
-            return true;
-        }
+        return checkTerminal("VAR") || checkTerminal("DIGIT") || checkValFuncExpr();
     }
 
     private boolean checkBcExprValue() {
         if (checkTerminal("LBR")) {
             if (checkExprValue()) {
-                if (checkTerminal("RBR")) {
-                    return true;
-                }
+                return checkTerminal("RBR");
             }
         }
         return false;
@@ -66,10 +60,7 @@ public class Parser {
                 }
             } else break;
         }
-        if (count > 0) {
-            return true;
-        }
-        return false;
+        return count > 0;
     }
 
     private boolean checkExprValue() {
@@ -94,9 +85,7 @@ public class Parser {
                 }
             }
             if (checkTerminal("RBC")) {
-                if (count > 0) {
-                    return true;
-                }
+                return count > 0;
             }
         }
         return false;
@@ -105,9 +94,7 @@ public class Parser {
     private boolean checkCompExpr() {
         if (checkValue()) {
             if (checkTerminal("COMP_OP")) {
-                if (checkValue()) {
-                    return true;
-                }
+                return checkValue();
             }
         }
         return false;
@@ -116,9 +103,7 @@ public class Parser {
     private boolean checkAssignExpr() {
         if (checkTerminal("VAR")) {
             if (checkTerminal("ASSIGN_OP")) {
-                if (checkExprValue()) {
-                    return true;
-                }
+                return checkExprValue();
             }
         }
         return false;
@@ -129,9 +114,7 @@ public class Parser {
             if (checkTerminal("LBR")) {
                 if (checkCompExpr()) {
                     if (checkTerminal("RBR")) {
-                        if (checkBody()) {
-                            return true;
-                        }
+                        return checkBody();
                     }
                 }
             }
@@ -142,13 +125,11 @@ public class Parser {
     private boolean checkForExpr() {
         if (checkTerminal("FOR")) {
             if (checkTerminal("LBR")) {
-                if (checkAssignExpr()) {
-                    if (checkCompExpr()) {
+                if (checkCompExpr()) {
+                    if (checkTerminal("DEL")) {
                         if (checkAssignExpr()) {
                             if (checkTerminal("RBR")) {
-                                if (checkBody()) {
-                                    return true;
-                                }
+                                return checkBody();
                             }
                         }
                     }
@@ -158,8 +139,54 @@ public class Parser {
         return false;
     }
 
+    private boolean checkLLExpr() {
+        if (checkTerminal("LL")) {
+            if (checkTerminal("VAR")) {
+                if (checkTerminal("ASSIGN_OP")) {
+                    if (checkValues()) {
+                        return checkTerminal("DEL");
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    private boolean checkValues() {
+        if (checkTerminal("LBC")) {
+            int count = 0;
+            while (true) {
+                if (checkValue()) {
+                    count++;
+                } else {
+                    break;
+                }
+            }
+            if (checkTerminal("RBC")) {
+                return count > 0;
+            }
+        }
+        return false;
+    }
+
+    private boolean checkVoidFuncExpr() {
+        if (checkTerminal("VOID_FUNC")) {
+            if (checkValues()) {
+                return checkTerminal("DEL");
+            }
+        }
+        return false;
+    }
+
+    private boolean checkValFuncExpr(){
+        if(checkTerminal("VAL_FUNC")){
+            return checkValues();
+        }
+        return false;
+    }
+
     private void checkExpr() throws SyntaxException {
-        if (!(checkAssignExpr() || checkWhileExpr() || checkForExpr())) {
+        if (!((checkAssignExpr() && checkTerminal("DEL")) || checkWhileExpr() || checkForExpr() || checkLLExpr() || checkVoidFuncExpr())) {
             throw new SyntaxException();
         }
     }
@@ -191,13 +218,13 @@ public class Parser {
         iterator = tokens.listIterator();
         while (iterator.hasNext()) {
             Token currToken = iterator.next();
-            if(currToken.getType().equals("DEL")){
+            if (currToken.getType().equals("DEL")) {
                 while (!ops.isEmpty() && !ops.peek().getType().equals("LBR")) {
                     out.push(ops.pop());
                 }
             }
             switch (currToken.getType()) {
-                case "DIGIT", "VAR", "WHILE", "FOR", "LBC", "RBC" -> out.push(currToken);
+                case "DIGIT", "VAR", "WHILE", "FOR", "LBC", "RBC", "LL", "VAL_FUNC", "VOID_FUNC" -> out.push(currToken);
                 case "LBR" -> ops.push(currToken);
                 case "RBR" -> {
                     while (!ops.peek().getType().equals("LBR")) {

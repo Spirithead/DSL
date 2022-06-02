@@ -1,11 +1,27 @@
 lang -> expr+
-expr -> assign_expr | while_expr | for_expr
+expr -> (assign_expr DEL) | while_expr | for_expr | ll_expr | void_func_expr
+void_func_expr -> VOID_FUNC LBC value+ RBC DEL
+val_func_expr -> VAL_FUNC LBC value+ RBC
+
 assign_expr -> VAR ASSIGN_OP expr_value
-for_expr -> FOR LBR assign_expr comp_expr assign_expr RBR body
+for_expr -> FOR LBR comp_expr DEL assign_expr RBR body
 while_expr -> WHILE LBR comp_expr RBR body
 body -> LBC expr+ RBC
 comp_expr -> value COMP_OP value
+
+ll_expr -> LL VAR ASSIGN_OP LBC value+ RBC DEL
+
 expr_value -> ((bc_expr_value|value) add_value) | value
 add_value -> (OP (value|bc_expr_value|expr_value))+
 bc_expr_value -> LBR expr_value RBR
-value -> VAR|DIGIT
+value -> VAR|DIGIT|val_func_expr
+
+
+взятьИз{список, индекс} - int
+взятьПер{список} - int
+взятьПосл{список} - int
+добВ{список, индекс, элемент} - void
+добПер{список, элемент} - void
+добПосл{список, элемент} - void
+убр{список, индекс} - void
+размер{список} - int

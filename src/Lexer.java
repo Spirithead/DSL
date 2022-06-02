@@ -12,9 +12,13 @@ public class Lexer {
 
     static {
         lexems.add(new Lexem("DEL", Pattern.compile("^;$")));
-        lexems.add(new Lexem("WHILE", Pattern.compile("^while$")));
-        lexems.add(new Lexem("FOR", Pattern.compile("^for$")));
-        lexems.add(new Lexem("VAR", Pattern.compile("^[a-z][a-z0-9]*$")));
+        lexems.add(new Lexem("COM", Pattern.compile("^,$")));
+        lexems.add(new Lexem("WHILE", Pattern.compile("^пока$")));
+        lexems.add(new Lexem("FOR", Pattern.compile("^для$")));
+        lexems.add(new Lexem("LL", Pattern.compile("^список$")));
+        lexems.add(new Lexem("VAL_FUNC", Pattern.compile("^(взятьИз|взятьПосл|взятьПер|размер)$")));
+        lexems.add(new Lexem("VOID_FUNC", Pattern.compile("^(добВ|добПер|добПосл|убр)$")));
+        lexems.add(new Lexem("VAR", Pattern.compile("^([a-z]|[а-я])[([a-z]|[а-я])0-9]*$")));
         lexems.add(new Lexem("DIGIT", Pattern.compile("^0|([1-9][0-9]*)$")));
         lexems.add(new Lexem("COMP_OP", Pattern.compile("^>|<|>=|<=|==$")));
         lexems.add(new Lexem("ASSIGN_OP", Pattern.compile("^=$")));
@@ -31,23 +35,15 @@ public class Lexer {
         boolean matched = false;
         String value = "";
         int firstSym = 0;
-        int character = 1;
-        int line = 1;
         int j = 0;
-        int delay = 5;
+        int delay = 10;
 
         for (int i = 1; i <= inChar.length; i++) {
             char[] buffer = new char[i - firstSym];
             System.arraycopy(inChar, firstSym, buffer, 0, i - firstSym);
-            //TODO разобраться с позициями
             String currString = String.valueOf(buffer);
             if (currString.equals(" ") || currString.equals("\t")) {
                 firstSym++;
-                if (currString.equals(" ")) {
-                    character++;
-                } else {
-                    character += 4;
-                }
                 continue;
             }
 
@@ -62,7 +58,6 @@ public class Lexer {
                 tokens.add(new Token(lexems.get(j).getName(), value));
                 matched = false;
                 firstSym = i - 1;
-                character = i - 1;
                 i--;
                 j = 0;
             } else if (i - firstSym <= delay && i < inChar.length) {

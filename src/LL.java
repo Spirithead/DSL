@@ -13,6 +13,10 @@ public class LL<T> {
         Node(T object) {
             this.object = object;
         }
+
+        public String toString(){
+            return object.toString();
+        }
     }
 
     public void addLast(T in) {
@@ -94,5 +98,13 @@ public class LL<T> {
 
     public int getSize() {
         return size;
+    }
+
+    public String toString(){
+        StringBuilder out = new StringBuilder();
+        for(int i=0;i<size;i++){
+            out.append(get(i).toString());
+        }
+        return out.toString();
     }
 }

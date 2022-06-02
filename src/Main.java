@@ -21,11 +21,14 @@ public class Main {
 
         //System.out.println(tokens);
         Parser parser = new Parser(tokens);
-        //parser.lang();
+        parser.lang();
         ArrayDeque<Token> polish = parser.polish();
         //System.out.println(polish);
         StackMachine stackMachine = new StackMachine(polish);
         stackMachine.execute();
+        System.out.println("vars:");
         System.out.println(stackMachine.getVars());
+        System.out.println("lists:");
+        System.out.println(stackMachine.getLls());
     }
 }
